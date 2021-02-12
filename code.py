@@ -30,18 +30,47 @@ URL = {
     }
 }
 '''
+def update(deleted_langs):
+    HTML = """<!DOCTYPE html>
+    <html>
+
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Deleted Videos</title>
+    </head>
+
+    <body>"""
+
+    for lang in deleted_langs:
+        HTML+=time.ctime()
+        HTML+="<h1>"+lang+"</h1>"
+        for title in tracks[lang[0]]['deleted']:
+            HTML+= title+"<br>"
+
+    HTML+="""</body>
+
+    </html>"""
+
+    ht = open("deleted list.html", "w")
+    ht.write(HTML)
+    ht.close()
+    webbrowser.open("deleted list.html")
+
+
 
 browser = webdriver.Firefox()
 
 in_file = open('data.json', 'r', encoding='UTF-8')
 tracks = json.load(in_file)
-
+flag = 0
 for lang,url in URL.items():
     browser.get(url)
 
     vids = browser.find_elements_by_id('video-title')
 
     del_list = tracks[lang[0]]['deleted']
+    deleted_langs = []
 
     for vid in vids:
         d={}
@@ -55,7 +84,9 @@ for lang,url in URL.items():
                     break
             if del_name not in tracks[lang[0]]['deleted']:
                 tracks[lang[0]]['deleted'].append(del_name)
-
+                # flag = 1
+                deleted_langs.append(lang[0])
+                update(deleted_langs)
             continue
 
         if d not in tracks[lang[0]]['tracks']:
@@ -66,28 +97,6 @@ out_file = open('data.json', 'w')
 json.dump(tracks, out_file, indent=5)
 out_file.close()
 
-HTML = """<!DOCTYPE html>
-<html>
+# if flag==0:
 
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>List of Deleted Videos</title>
-</head>
-
-<body>"""
-
-for lang in URL.keys():
-    HTML+="<h1>"+lang[0]+"</h1>"
-    for title in tracks[lang[0]]['deleted']:
-        HTML+= title+"<br>"
-
-HTML+="""</body>
-
-</html>"""
-
-ht = open("deleted list.html", "w")
-ht.write(HTML)
-ht.close()
-webbrowser.open("deleted list.html")
 
