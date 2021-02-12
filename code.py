@@ -1,32 +1,62 @@
-import requests, time
+import requests, time, json
 from selenium import webdriver
 
-M_URL = "https://www.youtube.com/playlist?list=PLqLu_Fx0uieHjlT21DeCjlL_YMnFVKOsC"
-T_URL = "https://www.youtube.com/playlist?list=PLqLu_Fx0uieGh66chFLg-_exltlbjC-c7"
-E_URL = "https://www.youtube.com/playlist?list=PLqLu_Fx0uieGh66chFLg-_exltlbjC-c7"
-H_URL = ""
+URL = {'M_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieHjlT21DeCjlL_YMnFVKOsC",
+    'T_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieGh66chFLg-_exltlbjC-c7",
+    'E_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieEGpsqV5B5Bcinm_Bhvh3aI",
+    'H_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieG3ZflewYgXb2x2VoE28aVm"}
 
+
+
+'''tracks = {
+    'M' : {
+        'tracks' :[],
+        'deleted' :[]
+    },
+    'T' : {
+        'tracks' :[],
+        'deleted' :[]
+    },
+    'E' : {
+        'tracks' :[],
+        'deleted' :[]
+    },
+    'H' : {
+        'tracks' :[],
+        'deleted' :[]
+    }
+}
+'''
 browser = webdriver.Firefox()
-browser.get(M_URL)
-# time.sleep(5)
-# browser.switch_to_frame('passive_signin')
-# vids = browser.find_element_by_class_name('yt-simple-endpoint style-scope ytd-playlist-video-renderer')
-# vids = browser.find_element_by_css_selector('.yt-simple-endpoint style-scope ytd-playlist-video-renderer')
 
-'''iframe = browser.find_element_by_xpath("//iframe[@name='passive_signin']")
-browser.switch_to.frame(iframe)
-vids = browser.find_element_by_class_name('yt-simple-endpoint style-scope ytd-playlist-video-renderer')'''
+in_file = open('data.json', 'r', encoding='UTF-8')
+tracks = json.load(in_file)
 
-vids = browser.find_elements_by_id('video-title')
+for lang,url in URL.items():
+    browser.get(url)
 
-print(vids[1].get_attribute('href'))
+    vids = browser.find_elements_by_id('video-title')
 
-'''res = requests.get(M_URL)
-soup = bs4.BeautifulSoup(res.text, 'html.parser')
-vids = soup.select('.style-scope ytd-app')
-# print(soup.prettify())
-# print( vids[0].getText() )
+    del_list = tracks[lang[0]]['deleted']
 
-f = open('html.txt','w', encoding='UTF-8')
-f.write(soup.prettify())
-f.close()'''
+    for vid in vids:
+        d={}
+        d['name'] = vid.text
+        d['link'] = vid.get_attribute('href').split('&')[0]
+
+        if d['name'] == '[Deleted video]':
+            for item in tracks[lang[0]]['tracks']:
+                if item['link'] == d['link']:
+                    del_name = item['name']
+                    break
+            if del_name not in tracks[lang[0]]['deleted']:
+                tracks[lang[0]]['deleted'].append(del_name)
+            continue
+
+        if d not in tracks[lang[0]]['tracks']:
+            tracks[lang[:1]]['tracks'].append(d)
+        # print(vid.get_attribute('href'))
+
+out_file = open('data.json', 'w')
+json.dump(tracks, out_file)
+out_file.close()
