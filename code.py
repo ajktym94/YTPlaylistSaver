@@ -97,6 +97,3 @@ out_file = open('data.json', 'w')
 json.dump(tracks, out_file, indent=5)
 out_file.close()
 
-# if flag==0:
-
-
