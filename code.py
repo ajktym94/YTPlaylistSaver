@@ -1,10 +1,13 @@
 import requests, time, json
+import webbrowser
 from selenium import webdriver
 
-URL = {'M_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieHjlT21DeCjlL_YMnFVKOsC",
-    'T_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieGh66chFLg-_exltlbjC-c7",
-    'E_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieEGpsqV5B5Bcinm_Bhvh3aI",
-    'H_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieG3ZflewYgXb2x2VoE28aVm"}
+URL = {
+        'M_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieHjlT21DeCjlL_YMnFVKOsC",
+        'T_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieGh66chFLg-_exltlbjC-c7",
+        'E_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieEGpsqV5B5Bcinm_Bhvh3aI",
+        'H_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieG3ZflewYgXb2x2VoE28aVm"
+    }
 
 
 
@@ -27,6 +30,7 @@ URL = {'M_URL' : "https://www.youtube.com/playlist?list=PLqLu_Fx0uieHjlT21DeCjlL
     }
 }
 '''
+
 browser = webdriver.Firefox()
 
 in_file = open('data.json', 'r', encoding='UTF-8')
@@ -62,17 +66,28 @@ out_file = open('data.json', 'w')
 json.dump(tracks, out_file, indent=5)
 out_file.close()
 
-'''
-<ytd-menu-service-item-renderer class="style-scope ytd-menu-popup-renderer" use-icons="" role="menuitem" tabindex="-1" aria-selected="false"><!--css-build:shady--><paper-item class="style-scope ytd-menu-service-item-renderer" role="option" tabindex="0" aria-disabled="false"><!--css-build:shady-->
-    
-    
-  <yt-icon class="style-scope ytd-menu-service-item-renderer"><svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="style-scope yt-icon" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g class="style-scope yt-icon"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" class="style-scope yt-icon"></path></g></svg><!--css-build:shady--></yt-icon>
-  <yt-formatted-string class="style-scope ytd-menu-service-item-renderer"><span dir="auto" class="style-scope yt-formatted-string">Remove from </span><span dir="auto" class="style-scope yt-formatted-string">Hindi Pwoli</span></yt-formatted-string>
+HTML = """<!DOCTYPE html>
+<html>
 
-</paper-item>
-</ytd-menu-service-item-renderer>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>List of Deleted Videos</title>
+</head>
 
+<body>"""
 
-<button id="button" class="style-scope yt-icon-button">
-  <yt-icon class="style-scope ytd-menu-renderer"><svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" focusable="false" class="style-scope yt-icon" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g class="style-scope yt-icon"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" class="style-scope yt-icon"></path></g></svg><!--css-build:shady--></yt-icon>
-</button>'''
+for lang in URL.keys():
+    HTML+="<h1>"+lang[0]+"</h1>"
+    for title in tracks[lang[0]]['deleted']:
+        HTML+= title+"<br>"
+
+HTML+="""</body>
+
+</html>"""
+
+ht = open("deleted list.html", "w")
+ht.write(HTML)
+ht.close()
+webbrowser.open("deleted list.html")
+
